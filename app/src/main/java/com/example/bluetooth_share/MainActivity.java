@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Locale;
@@ -22,6 +23,12 @@ import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "kiserian";
+    String name;
+    String address;
+    String btclass;
+    ListView listView;
+    List list;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
 
         //test if device has bluetooth. if it doesnt exit after 5sec
         if (adapter == null){
-            showToast("Device doesnt support bluetooth. Exiting application...");
+            showToast("Device does not support bluetooth. Exiting application...");
 
             try {
                 wait(5000);
@@ -89,6 +96,10 @@ public class MainActivity extends AppCompatActivity {
 
         if(myPairedDevices.size() > 0){
             for (BluetoothDevice bt :myPairedDevices){
+                name=bt.getName();
+                names.setText(name);
+                address=bt.getAddress();
+                addreses.setText(address);
                 Log.i(TAG, bt.getName());
                 Log.i(TAG, bt.getAddress());
                 Log.i(TAG, bt.getBluetoothClass().toString());
