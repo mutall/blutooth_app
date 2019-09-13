@@ -15,8 +15,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
     ListView listView;
     List list;
     private HashMap hashMap;
-
+    BluetoothAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +48,16 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         listView = findViewById(R.id.listview);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Object random = parent.getItemAtPosition(position);
+                BluetoothDevice device = (BluetoothDevice) random;
+                new ServerBt(adapter);
+                new ClientBt(device, adapter);
+            }
+        });
         list = new ArrayList();
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -84,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void connectBluetooth(){
         //create a new bluetooth adapter
-        BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+        adapter = BluetoothAdapter.getDefaultAdapter();
 
         //test if device has bluetooth. if it doesn`t exit after 5sec
         if (adapter == null){
@@ -108,14 +118,7 @@ public class MainActivity extends AppCompatActivity {
 
         if(myPairedDevices.size() > 0){
             for (BluetoothDevice bt :myPairedDevices){
-                name = bt.getName();
-                address = bt.getAddress();
-                btclass = bt.getBluetoothClass().toString();
-
-                hashMap= new HashMap<>();
-                hashMap.put("device",name);
-                hashMap.put("mac",address);
-                list.add(hashMap);
+                list.add(bt);
             }
             Log.i(TAG, list.toString());
             MyAdapter adp = new MyAdapter(this, list);
