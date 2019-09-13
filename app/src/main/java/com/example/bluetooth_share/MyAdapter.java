@@ -1,5 +1,6 @@
 package com.example.bluetooth_share;
 
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,9 +17,9 @@ import java.util.Objects;
 
 public class MyAdapter extends ArrayAdapter {
     private Context context;
-    private List<HashMap<String, String>> list;
+    private List<BluetoothDevice> list;
 
-    MyAdapter(Context c, List<HashMap<String, String>> list){
+    MyAdapter(Context c, List<BluetoothDevice> list){
         super(c, 0, list);
         this.list = list;
         this.context = c;
@@ -29,15 +30,13 @@ public class MyAdapter extends ArrayAdapter {
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         if(convertView == null){
             convertView = LayoutInflater.from(context).inflate(R.layout.single_row, parent, false);
-            HashMap bluetooth_device = list.get(position);
+            BluetoothDevice bluetooth_device = list.get(position);
 
             TextView t_name = convertView.findViewById(R.id.name);
             TextView t_mac = convertView.findViewById(R.id.mac_address);
 
-            t_name.setText(Objects.requireNonNull(bluetooth_device.get("device")).toString());
-            t_mac.setText(Objects.requireNonNull(bluetooth_device.get("mac")).toString());
-
-
+            t_name.setText(bluetooth_device.getName());
+            t_mac.setText(bluetooth_device.getAddress());
         }
 
         return convertView;
