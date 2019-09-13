@@ -15,13 +15,30 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "kiserian";
+
+    String name;
+    String address;
+    String btclass;
+
+    ListView listView;
+    List list;
+    private HashMap hashMap;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        listView = findViewById(R.id.listview);
+        list = new ArrayList();
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,10 +83,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void connectBluetooth(){
-        //create a ne w bluetooth adapter
+        //create a new bluetooth adapter
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 
-        //test if device has bluetooth. if it doesnt exit after 5sec
+        //test if device has bluetooth. if it doesn`t exit after 5sec
         if (adapter == null){
             showToast("Device doesnt support bluetooth. Exiting application...");
 
@@ -89,6 +108,22 @@ public class MainActivity extends AppCompatActivity {
 
         if(myPairedDevices.size() > 0){
             for (BluetoothDevice bt :myPairedDevices){
+                name = bt.getName();
+                address = bt.getAddress();
+                btclass = bt.getBluetoothClass().toString();
+
+                hashMap= new HashMap<>();
+                hashMap.put("device",name);
+                hashMap.put("mac",address);
+                list.add(hashMap);
+
+
+
+
+                ArrayAdapter adpt = new ArrayAdapter<String>(this,R.layout.support_simple_spinner_dropdown_item, list);
+                listView.setAdapter(adpt);
+
+
                 Log.i(TAG, bt.getName());
                 Log.i(TAG, bt.getAddress());
                 Log.i(TAG, bt.getBluetoothClass().toString());
