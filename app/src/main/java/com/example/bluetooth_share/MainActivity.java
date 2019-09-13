@@ -116,18 +116,11 @@ public class MainActivity extends AppCompatActivity {
                 hashMap.put("device",name);
                 hashMap.put("mac",address);
                 list.add(hashMap);
-
-
-
-
-                ArrayAdapter adpt = new ArrayAdapter<String>(this,R.layout.support_simple_spinner_dropdown_item, list);
-                listView.setAdapter(adpt);
-
-
-                Log.i(TAG, bt.getName());
-                Log.i(TAG, bt.getAddress());
-                Log.i(TAG, bt.getBluetoothClass().toString());
             }
+            Log.i(TAG, list.toString());
+            MyAdapter adp = new MyAdapter(this, list);
+//            ArrayAdapter adpt = new ArrayAdapter<String>(this,R.layout.support_simple_spinner_dropdown_item, list);
+            listView.setAdapter(adp);
         }
 
     }
