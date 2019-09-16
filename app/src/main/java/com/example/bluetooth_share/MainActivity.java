@@ -17,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,6 +35,8 @@ public class MainActivity extends AppCompatActivity {
     String name;
     String address;
     String btclass;
+    Button btn;
+    TextView display;
 
     ListView listView;
     List list;
@@ -59,8 +62,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         list = new ArrayList();
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        btn = findViewById(R.id.button);
+
+        btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 connectBluetooth();
@@ -112,6 +116,8 @@ public class MainActivity extends AppCompatActivity {
         if(!adapter.isEnabled()){
             Intent enable_bluetooth = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enable_bluetooth, 1);
+            display = findViewById(R.id.display);
+            display.setText("bluetooth is on");
         }
         //get all paired devices
         Set<BluetoothDevice> myPairedDevices = adapter.getBondedDevices();
