@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,13 +32,11 @@ import java.util.Set;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "kiserian";
 
-    String name;
-    String address;
-    String btclass;
 
     ListView listView;
     List list;
-    private HashMap hashMap;
+    TextView btstatus;
+    Switch switch1;
     BluetoothAdapter adapter;
 
     @Override
@@ -46,7 +45,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        btstatus = findViewById(R.id.btstatus);
+        switch1 = findViewById(R.id.switch1);
         listView = findViewById(R.id.listview);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -59,8 +59,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         list = new ArrayList();
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+
+        switch1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 connectBluetooth();
@@ -112,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
         if(!adapter.isEnabled()){
             Intent enable_bluetooth = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enable_bluetooth, 1);
+            btstatus.setText("Bluetooth is on");
         }
         //get all paired devices
         Set<BluetoothDevice> myPairedDevices = adapter.getBondedDevices();
