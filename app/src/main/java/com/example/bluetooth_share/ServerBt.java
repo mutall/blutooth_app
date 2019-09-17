@@ -43,7 +43,6 @@ public class ServerBt extends Thread {
 
     }
 
-
     public void close(){
         try {
             bluetoothServerSocket.close();
