@@ -39,10 +39,18 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     Switch aSwitch;
     TextView tview;
     MyAdapter adp;
-    Button paired, send;
-    EditText data;
+    Button paired;
     private static final int SET_DISCOVERBLE = 20;
-    BluetoothService service;
+    Handler handler = new Handler(Looper.getMainLooper()){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if (msg.what == 10){
+                startActivity(new Intent(MainActivity.this, ChatView.class));
+            }
+        }
+    };
+
 
 
     BroadcastReceiver bluetooth_state = new BroadcastReceiver() {
@@ -53,7 +61,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0);
                 switch (state) {
                     case BluetoothAdapter.STATE_ON:
-                        service = new BluetoothService(MainActivity.this);
                         Log.d(TAG, "State on");
                         break;
                     case BluetoothAdapter.STATE_TURNING_ON:
@@ -65,25 +72,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     case BluetoothAdapter.STATE_TURNING_OFF:
                         Log.d(TAG, "state turning off..");
                 }
-            }
-        }
-    };
-
-    BroadcastReceiver scan_mode = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if(BluetoothDevice.ACTION_FOUND.equals(action)){
-                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                Log.d(TAG, "onReceive: "+device.getName());
-                StringBuilder builder = new StringBuilder();
-                Log.d(TAG, builder.append("Bluetooth device found ").append(device.getName()).append(device.getAddress()).toString());
-                scannedDevices.add(device);
-
-                adp = new MyAdapter(MainActivity.this, scannedDevices);
-                adp.notifyDataSetChanged();
-                listView.setAdapter(adp);
-                adapter.cancelDiscovery();
             }
         }
     };
@@ -123,26 +111,22 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         listView = findViewById(R.id.listview);
         tview = findViewById(R.id.textView);
         paired = findViewById(R.id.paired_btn);
-        send = findViewById(R.id.send);
-        data = findViewById(R.id.editText2);
 
 
-
-        send.setOnClickListener(new View.OnClickListener() {
+        handler = new Handler(Looper.getMainLooper()){
             @Override
-            public void onClick(View v) {
-                if(!data.getText().toString().equals("")){
-                    String msg = data.getText().toString();
-                    service.write(msg.getBytes());
+            public void handleMessage(Message msg) {
+                if(msg.what == 13){
+                    String response = (String)msg.obj;
+                    showToast(response);
+
                 }
             }
-        });
-
+        };
         //create a new bluetooth adapter
         adapter = BluetoothAdapter.getDefaultAdapter();
 
         if(adapter.isEnabled()){
-            service = new BluetoothService(MainActivity.this);
             paired.setEnabled(true);
             tview.setText("bluetooth enabled");
             aSwitch.setChecked(true);
@@ -195,35 +179,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
-    public void enableDiscoveraility(){
-
-        Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-        intent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
-
-        IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED);
-        registerReceiver(discoverable, filter);
-        startActivityForResult(intent, SET_DISCOVERBLE);
-
-
-    }
-
-    public void scanDevices(){
-        if(adapter.isDiscovering()){
-            adapter.cancelDiscovery();
-            Log.d(TAG, "Stopped discovery");
-
-            adapter.startDiscovery();
-            Log.d(TAG, "started discovery");
-            IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-            registerReceiver(scan_mode, filter);
-        }else{
-            adapter.startDiscovery();
-            Log.d(TAG, "started discovery");
-            IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-            registerReceiver(scan_mode, filter);
-        }
-    }
-
     public void showPairedDevices() {
         if(adp != null){
             adp.clear();
@@ -250,7 +205,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Object random = parent.getItemAtPosition(position);
         BluetoothDevice device = (BluetoothDevice) random;
-        service.startClient(device);
+        Intent intent = new Intent(MainActivity.this, ChatView.class);
+        intent.putExtra("bluetooth", device);
+        startActivity(intent);
+
     }
 
     @Override

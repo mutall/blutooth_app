@@ -25,9 +25,11 @@ public class BluetoothService {
     private ClientBt clientBt;
     private ServerBt serverBt;
     private ConnectedBt connectedBt;
-    private Context c;
-    public BluetoothService(Context context){
-        this.c = context;
+    private static final int MSG_WHAT = 11;
+    private Handler handler;
+
+    public BluetoothService(Handler handler){
+        this.handler = handler;
         this.adapter = BluetoothAdapter.getDefaultAdapter();
         initialize();
     }
@@ -51,7 +53,7 @@ public class BluetoothService {
 
     public void manageConnection(BluetoothSocket sock){
         Log.d(TAG, "connected: Starting.");
-
+        handler.sendEmptyMessage(10);
         // Start the thread to manage the connection and perform transmissions
         connectedBt = new ConnectedBt(sock);
         connectedBt.start();
@@ -86,6 +88,7 @@ public class BluetoothService {
                     adp.cancelDiscovery();
                 }
                 socket.connect();
+                Log.d(TAG, "run: client socket open. ready to connnect");
             } catch (IOException e) {
                 e.printStackTrace();
                 try {
@@ -126,6 +129,7 @@ public class BluetoothService {
             while (true) {
                 try {
                     bluetoothSocket = bluetoothServerSocket.accept();
+                    Log.d(TAG, "run: server ready to accept connection");
                 } catch (IOException e) {
                     e.printStackTrace();
                     break;
@@ -179,15 +183,8 @@ public class BluetoothService {
                     bytes = inputStream.read(buffer);
                     final String msg = new String(buffer, 0, bytes);
                     Log.d(TAG, "input stream: "+msg);
-                    final Activity activity = (Activity)c;
-
-                    activity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(c, msg, Toast.LENGTH_LONG).show();
-
-                        }
-                    });
+                    Message message  = handler.obtainMessage(MSG_WHAT, msg);
+                    message.sendToTarget();
 
                 }catch(IOException e){
                     e.printStackTrace();
@@ -200,7 +197,7 @@ public class BluetoothService {
 
         public void write(byte[] bytes){
             String msg = new String(bytes, Charset.defaultCharset());
-            Log.d(TAG, "write: "+msg);
+            Log.d(TAG, "output stream: "+msg);
             try {
                 outputStream.write(bytes);
             } catch (IOException e) {
